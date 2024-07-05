@@ -18,6 +18,8 @@ var (
 	topic     string
 	offset    int
 	partition int
+	user      string
+	password  string
 )
 
 func init() {
@@ -25,6 +27,8 @@ func init() {
 	flag.IntVar(&offset, "offset", 0, "kafka offset (start reading at this point)")
 	flag.IntVar(&partition, "partition", 0, "kafka partition")
 	flag.StringVar(&topic, "topic", "messages", "topic in kafka")
+	flag.StringVar(&user, "user", "", "kafka sasl user")
+	flag.StringVar(&password, "password", "", "kafka sasl password for sasl user")
 	flag.Parse()
 }
 
@@ -32,6 +36,9 @@ func connectConsumer(brokers []string) (sarama.Consumer, error) {
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_8_2_0
 	config.Consumer.Return.Errors = true
+	config.Net.SASL.Enable = true
+	config.Net.SASL.User = user
+	config.Net.SASL.Password = password
 
 	return sarama.NewConsumer(brokers, config)
 }

@@ -13,13 +13,17 @@ import (
 )
 
 var (
-	appID int
-	topic string
+	appID    int
+	topic    string
+	user     string
+	password string
 )
 
 func init() {
 	flag.IntVar(&appID, "id", 1, "app id")
 	flag.StringVar(&topic, "topic", "messages", "topic in kafka")
+	flag.StringVar(&user, "user", "", "kafka sasl user")
+	flag.StringVar(&password, "password", "", "kafka sasl password for sasl user")
 	flag.Parse()
 }
 
@@ -29,6 +33,9 @@ func connectProducer(brokers []string) (sarama.SyncProducer, error) {
 	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Retry.Max = 5
+	config.Net.SASL.Enable = true
+	config.Net.SASL.User = user
+	config.Net.SASL.Password = password
 
 	return sarama.NewSyncProducer(brokers, config)
 }
